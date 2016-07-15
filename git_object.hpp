@@ -1,3 +1,10 @@
+/*************************************************
+    @author o_nishy
+    @name   git_object.cpp
+    @brief  Defining git command objects.
+            Each git command inherits GitObj class.
+*************************************************/
+
 #include <string>
 #include "config.hpp"
 
@@ -15,6 +22,7 @@ inline std::string quote(std::string message) {
     return "\"" + message + "\"";
 }
 
+// Base class for git command
 class GitObj {
 public:
     virtual std::string write() = 0;
@@ -30,6 +38,7 @@ protected:
     std::string m_my_branch;
 };
 
+// git commit class
 class CommitObj : public GitObj {
 public:
     CommitObj(unsigned long id, std::string my_branch, std::string message)
@@ -46,6 +55,7 @@ private:
     std::string m_message;
 };
 
+// git merge class
 class MergeObj : public GitObj {
 public:
     MergeObj(unsigned long id, std::string my_branch, std::string target_branch, std::string message)
@@ -63,6 +73,7 @@ private:
     std::string m_message;
 };
 
+// git class for forking a branch from another
 class ForkObj : public GitObj {
 public:
     ForkObj(unsigned long id, std::string my_branch, std::string new_branch, std::string message)
@@ -81,6 +92,8 @@ private:
     std::string m_message;
 };
 
+// git class for renaming a branch
+// since the old name will not appear on git tree after renamed, using fork command is always recommended
 class RenameObj : public GitObj {
 public:
     RenameObj(unsigned long id, std::string my_branch, std::string new_name)
