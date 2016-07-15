@@ -20,9 +20,6 @@ public:
     virtual std::string write() = 0;
 
     unsigned long getId() const {return m_id;}
-    bool operator<(const GitObj& right) {
-        return this->m_id < right.getId();
-    }
 
 protected:
     GitObj(GitCmd cmd, unsigned long id, std::string my_branch)
@@ -57,7 +54,6 @@ public:
     std::string write() {
         std::string ret_cmd
             = "git checkout " + m_my_branch + "; "
-              "echo " + std::to_string(m_id) + " > " + Config::load().filename + "; "
               "git merge " + m_target_branch + " -s ours -m " + quote(m_message) + "\n";
         return ret_cmd;
     }
@@ -69,17 +65,20 @@ private:
 
 class ForkObj : public GitObj {
 public:
-    ForkObj(unsigned long id, std::string my_branch, std::string new_branch)
-        : GitObj(GitCmd::fork, id, my_branch), m_new_branch(new_branch) {};
+    ForkObj(unsigned long id, std::string my_branch, std::string new_branch, std::string message)
+        : GitObj(GitCmd::fork, id, my_branch), m_new_branch(new_branch), m_message(message) {};
 
     std::string write() {
         std::string ret_cmd
                     = "git checkout " + m_my_branch + "; "
-                      "git branch " + m_new_branch + "\n";
+                      "git checkout -b " + m_new_branch + "; "
+                      "echo " + std::to_string(m_id) + " > " + Config::load().filename + "; "
+                      "git commit -a -m " + quote(m_message) + "\n";
         return ret_cmd;
     }
 private:
     std::string m_new_branch;
+    std::string m_message;
 };
 
 class RenameObj : public GitObj {
